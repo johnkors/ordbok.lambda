@@ -1,39 +1,29 @@
+using System.Collections.Generic;
+using Amazon.Lambda.APIGatewayEvents;
 using Xunit;
 using Amazon.Lambda.TestUtilities;
-using Amazon.Lambda.APIGatewayEvents;
-using Newtonsoft.Json;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using Ordbok.Function;
-using OrdbokApi.Lib.Slack;
-using Xunit.Abstractions;
 
 namespace Orderbok.Function.Tests
 {
     public class FunctionTest
     {
-        private readonly ITestOutputHelper _helper;
-
-        public FunctionTest(ITestOutputHelper helper)
-        {
-            _helper = helper;
-        }
-
         [Fact]
         public void TestGetMethod()
         {
             var functions = new GetPhraseFunction();
-            
-            var slackData = new SlackSlashCommandUserInput
-            {
-                Phrase = "test", Username = "@john"
-            };
-
+           
             var context = new TestLambdaContext();
-            var response = functions.Get(slackData, context);
-            Assert.Equal(200, response.StatusCode);
-            _helper.WriteLine(response.Body);
-            Assert.Equal("{\"text\":", response.Body.Substring(0,8));
+
+            string slackBody = "user_name=Steve&text=Test";
+            var data = new APIGatewayProxyRequest
+            {
+                Body = slackBody
+            };
+            var response = functions.Get(data, context);
+            Assert.Equal("{\"text\":\"", response.Body.Substring(0,9));
         }
-
-
     }
 }
