@@ -20,8 +20,7 @@ namespace Ordbok.Function
         /// </summary>
         public GetPhraseFunction()
         {
-            IOrdbokService ordbokService = new OrdbokService();
-            _slackService = new SlackWebHookService(ordbokService);
+            _slackService = new SlackWebHookService(new OrdbokService());
         }
 
 
@@ -30,16 +29,12 @@ namespace Ordbok.Function
         /// </summary>
         /// <param name="request"></param>
         /// <returns>The list of blogs</returns>
-        public APIGatewayProxyResponse Get(APIGatewayProxyRequest request, ILambdaContext context)
+        public APIGatewayProxyResponse Get(SlackSlashCommandUserInput request, ILambdaContext context)
         {
-            context.Logger.LogLine("Get Request\n");
+            context.Logger.LogLine("Get Request\n for " + JsonConvert.SerializeObject(request));
 
-            var slackSlashCommandUserInput = new SlackSlashCommandUserInput
-            {
-                Phrase = "test",
-                Username = "yolo"
-            };
-            var generateSlackWebHookResponse = _slackService.GenerateSlackWebHookResponse(slackSlashCommandUserInput).GetAwaiter().GetResult();
+  
+            var generateSlackWebHookResponse = _slackService.GenerateSlackWebHookResponse(request).GetAwaiter().GetResult();
             var responseJson = JsonConvert.SerializeObject(generateSlackWebHookResponse);
             var response = new APIGatewayProxyResponse
             {

@@ -2,6 +2,7 @@ using Xunit;
 using Amazon.Lambda.TestUtilities;
 using Amazon.Lambda.APIGatewayEvents;
 using Ordbok.Function;
+using OrdbokApi.Lib.Slack;
 using Xunit.Abstractions;
 
 namespace Orderbok.Function.Tests
@@ -19,9 +20,11 @@ namespace Orderbok.Function.Tests
         public void TestGetMethod()
         {
             var functions = new GetPhraseFunction();
-
-
-            var request = new APIGatewayProxyRequest();
+            
+            var request = new SlackSlashCommandUserInput
+            {
+                Phrase = "test", Username = "@john"
+            };
             var context = new TestLambdaContext();
             var response = functions.Get(request, context);
             Assert.Equal(200, response.StatusCode);
