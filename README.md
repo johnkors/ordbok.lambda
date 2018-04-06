@@ -1,2 +1,2 @@
 # ordbok.lambda
-Ordbok Slackbot using AWS lambda
+A sample AWS lambda function doing norwegian ordbok lookups.
