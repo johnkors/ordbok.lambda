@@ -1,6 +1,7 @@
 using Xunit;
 using Amazon.Lambda.TestUtilities;
 using Amazon.Lambda.APIGatewayEvents;
+using Newtonsoft.Json;
 using Ordbok.Function;
 using OrdbokApi.Lib.Slack;
 using Xunit.Abstractions;
@@ -21,9 +22,15 @@ namespace Orderbok.Function.Tests
         {
             var functions = new GetPhraseFunction();
             
-            var request = new SlackSlashCommandUserInput
+            var slackData = new SlackSlashCommandUserInput
             {
                 Phrase = "test", Username = "@john"
+            };
+
+            var request = new APIGatewayProxyRequest
+            {
+                HttpMethod = "POST",
+                Body = JsonConvert.SerializeObject(slackData)
             };
             var context = new TestLambdaContext();
             var response = functions.Get(request, context);

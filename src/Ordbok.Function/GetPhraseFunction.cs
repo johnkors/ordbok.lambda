@@ -29,12 +29,12 @@ namespace Ordbok.Function
         /// </summary>
         /// <param name="request"></param>
         /// <returns>The list of blogs</returns>
-        public APIGatewayProxyResponse Get(SlackSlashCommandUserInput request, ILambdaContext context)
+        public APIGatewayProxyResponse Get(APIGatewayProxyRequest request, ILambdaContext context)
         {
             context.Logger.LogLine("Get Request\n for " + JsonConvert.SerializeObject(request));
 
-  
-            var generateSlackWebHookResponse = _slackService.GenerateSlackWebHookResponse(request).GetAwaiter().GetResult();
+            var slackInput = JsonConvert.DeserializeObject<SlackSlashCommandUserInput>(request.Body);
+            var generateSlackWebHookResponse = _slackService.GenerateSlackWebHookResponse(slackInput).GetAwaiter().GetResult();
             var responseJson = JsonConvert.SerializeObject(generateSlackWebHookResponse);
             var response = new APIGatewayProxyResponse
             {
