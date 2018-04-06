@@ -1,12 +1,8 @@
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.WebHooks;
 using Newtonsoft.Json;
 using OrdbokApi.Lib;
 using OrdbokApi.Lib.Slack;
@@ -17,7 +13,7 @@ namespace Ordbok.Function
 {
     public class GetPhraseFunction
     {
-        private SlackWebHookService _slackService;
+        private readonly SlackWebHookService _slackService;
 
         /// <summary>
         /// Default constructor that Lambda will invoke.
@@ -27,23 +23,19 @@ namespace Ordbok.Function
             _slackService = new SlackWebHookService(new OrdbokService());
         }
  
-        public APIGatewayProxyResponse Get(APIGatewayProxyRequest request, ILambdaContext context)
+        public async Task<APIGatewayProxyResponse> Get(APIGatewayProxyRequest request, ILambdaContext context)
         {
             var data = HttpUtility.ParseQueryString(request.Body);
             var username = data["user_name"];
             var text = data["text"];
   
-            context.Logger.LogLine("Request: " + JsonConvert.SerializeObject(request));
-            context.Logger.LogLine("Keys: " + JsonConvert.SerializeObject(data.AllKeys));
-            context.Logger.LogLine("data: " + JsonConvert.SerializeObject(data));
-            context.Logger.LogLine("U: " + username);
-            context.Logger.LogLine("text: " + text);
             var slackSlashCommandUserInput = new SlackSlashCommandUserInput
             {
                 Username = username,
                 Phrase = text
             };
-            var ordbok = _slackService.GenerateSlackWebHookResponse(slackSlashCommandUserInput).GetAwaiter().GetResult();
+            var ordbok = await _slackService.GenerateSlackWebHookResponse(slackSlashCommandUserInput);
+
             return new APIGatewayProxyResponse()
             {
                 Body = JsonConvert.SerializeObject(ordbok),
